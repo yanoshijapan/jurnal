@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Yanoshi Team Journal</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; -webkit-tap-highlight-color: transparent; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .tap-effect:active { transform: scale(0.95); opacity: 0.8; }
+        .nav-active { color: #2563eb; }
+        .nav-inactive { color: #94a3b8; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .card-anim { animation: fadeIn 0.4s ease-out forwards; }
+        
+        /* Target Harian CSS */
+        :root { --accent-red: #ef4444; --accent-green: #10b981; --bg-green: #d1fae5; }
+        .target-header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; border-radius: 16px 16px 0 0; padding: 24px; text-align: center; }
+        .deadline-badge { display: inline-block; background-color: rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; backdrop-filter: blur(4px); border: 1px solid rgba(255, 255, 255, 0.3); margin-top: 10px; }
+        .target-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #e5e7eb; transition: transform 0.2s ease; }
+        .highlight-number { font-weight: 700; color: var(--accent-red); background-color: #fee2e2; padding: 2px 8px; border-radius: 6px; }
+        .target-reached-badge { font-weight: 700; color: var(--accent-green); background-color: var(--bg-green); padding: 4px 10px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .spinner-target { width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid #2563eb; border-radius: 50%; margin: 0 auto 10px; animation: spin 1s linear infinite; }
+        
+        /* Image Avatar Styling */
+        .avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .avatar-container { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; }
+    </style>
+</head>
+<body class="text-slate-800 h-screen overflow-hidden flex flex-col relative">
+
+    <div id="login-screen" class="fixed inset-0 z-[100] bg-white flex flex-col justify-center items-center p-8 transition-opacity duration-500">
+        <div class="mb-10 text-center">
+            <img src="https://yanoshijapan.github.io/asetonline/logohitam.png" alt="Logo App" class="w-24 h-24 mx-auto mb-6 object-contain">
+            <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Yanoshi Team Journal</h1>
+            <p class="text-slate-500 mt-2">Login Team</p>
+        </div>
+        <div class="w-full max-w-sm space-y-5">
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase">Username</label>
+                <input type="text" id="login-name" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 font-semibold" placeholder="Masukkan Nama Anda">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1.5 uppercase">Password</label>
+                <input type="password" id="login-pass" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 focus:outline-none focus:border-blue-500 font-semibold" placeholder="••••••">
+            </div>
+            <button id="btn-login" onclick="handleLogin()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-bold text-lg shadow-lg tap-effect mt-4 flex justify-center items-center">
+                <span>Let's Go</span>
+            </button>
+        </div>
+        <p class="mt-6 text-xs text-slate-400">Pastikan sudah terdaftar di Database.</p>
+    </div>
+
+    <div id="view-home" class="hidden absolute inset-0 z-50 bg-slate-50 overflow-y-auto pb-10">
+        <div class="bg-white p-6 pb-8 rounded-b-[2.5rem] shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+                <div><p class="text-slate-400 text-sm">Selamat Datang,</p><h2 id="home-greeting" class="text-2xl font-bold text-slate-800">User</h2></div>
+                <div id="home-avatar" class="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 overflow-hidden shadow-sm border border-slate-200">
+                    <i class="fa-regular fa-user"></i>
+                </div>
+            </div>
+            <div class="bg-blue-600 text-white p-4 rounded-2xl shadow-lg shadow-blue-200 flex justify-between items-center">
+                <div><p class="text-blue-100 text-xs uppercase font-bold tracking-wider">Hari Ini</p><p id="home-date" class="font-bold text-lg">...</p></div>
+                <i class="fa-solid fa-calendar-day text-2xl opacity-80"></i>
+            </div>
+        </div>
+        <div class="p-6 mt-2 space-y-4">
+            <p class="text-sm font-bold text-slate-400 uppercase tracking-wide mb-2">Menu Utama</p>
+            <div onclick="goToTarget()" class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 tap-effect flex items-center gap-4 cursor-pointer group">
+                <div class="w-14 h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl group-hover:scale-110 transition"><i class="fa-solid fa-bullseye"></i></div>
+                <div class="flex-1"><h3 class="font-bold text-lg text-slate-800">Lihat Target Harian</h3><p class="text-slate-500 text-xs">Cek sisa target & closing Omiyage.</p></div>
+                <i class="fa-solid fa-chevron-right text-slate-300"></i>
+            </div>
+            <div onclick="goToJurnal()" class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 tap-effect flex items-center gap-4 cursor-pointer group">
+                <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl group-hover:scale-110 transition"><i class="fa-solid fa-book-journal-whills"></i></div>
+                <div class="flex-1"><h3 class="font-bold text-lg text-slate-800">Jurnal & Notulen</h3><p class="text-slate-500 text-xs">Laporan harian & catatan tim.</p></div>
+                <i class="fa-solid fa-chevron-right text-slate-300"></i>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-target" class="hidden absolute inset-0 z-40 bg-slate-100 overflow-y-auto">
+        <div class="fixed top-4 left-4 z-50"><button onclick="goBackToHome()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-700 tap-effect shadow-md border border-slate-200"><i class="fa-solid fa-arrow-left"></i></button></div>
+        <div class="p-5 pt-0 min-h-screen flex justify-center items-start">
+            <div class="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden mt-6 animate-[fadeIn_0.5s]">
+                <div class="target-header relative">
+                    <h1 class="text-sm font-bold uppercase tracking-widest opacity-90">Target Harian Yanoshi Omiyage</h1>
+                    <div class="text-2xl font-bold mt-2" id="target-date">-</div>
+                    <div class="deadline-badge" id="closingCountdown">...</div>
+                </div>
+                <div class="p-6">
+                    <div id="loading-target" class="text-center py-8"><div class="spinner-target"></div><p class="text-slate-400 text-sm">Mengambil data...</p></div>
+                    <div id="error-target" class="hidden text-center py-8"><p class="text-red-500 text-sm">Gagal memuat data.</p></div>
+                    <div id="target-list" class="hidden space-y-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-jurnal" class="hidden flex-1 flex flex-col h-full bg-slate-50 relative z-10">
+        <header class="bg-white sticky top-0 z-30 shadow-sm">
+            <div class="px-5 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <button onclick="goBackToHome()" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-600 tap-effect"><i class="fa-solid fa-arrow-left text-sm"></i></button>
+                    <h1 id="header-title" class="text-lg font-bold text-slate-800">Semua Jurnal</h1>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="toggleFilter()" id="btn-filter" class="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center tap-effect border border-slate-200 text-slate-600"><i class="fa-solid fa-filter text-sm"></i></button>
+                    <button onclick="fetchJurnalData()" class="w-9 h-9 rounded-full bg-slate-50 flex items-center justify-center tap-effect border border-slate-200 text-slate-600"><i class="fa-solid fa-arrows-rotate text-sm"></i></button>
+                </div>
+            </div>
+            <div id="filter-panel" class="hidden px-5 pb-5 bg-white border-b border-slate-100 animate-[fadeIn_0.2s]">
+                <div class="grid grid-cols-2 gap-3 mb-3">
+								<div>
+										<label class="text-[10px] font-bold text-slate-400 uppercase">Cari Nama</label>
+										<input type="text" id="filter-nama" oninput="renderJurnalList()" class="w-full p-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50" placeholder="Nama...">
+								</div>
+
+								<div>
+										<label class="text-[10px] font-bold text-slate-400 uppercase">Divisi</label>
+										<select id="filter-divisi" onchange="renderJurnalList()" class="w-full p-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50">
+												<option value="">Semua</option>
+												<option value="Leader">Leader</option>
+												<option value="Marketing">Marketing</option>
+												<option value="Sales">Sales</option>
+												<option value="Admin">Admin</option>
+												<option value="Accounting">Accounting</option>
+												<option value="Support">Support</option>
+												<option value="Produksi">Produksi</option>
+										</select>
+								</div>
+						</div>
+                <div class="flex gap-3 items-end">
+                    <div class="flex-1"><label class="text-[10px] font-bold text-slate-400 uppercase">Tanggal</label><input type="date" id="filter-tanggal" onchange="renderJurnalList()" class="w-full p-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 text-slate-600"></div>
+                    <button onclick="resetFilter()" class="h-[42px] px-4 bg-slate-100 text-slate-500 rounded-xl text-xs font-bold">Reset Filter</button>
+                </div>
+            </div>
+        </header>
+
+        <div id="view-list" class="flex-1 overflow-y-auto p-5 pb-28 hide-scrollbar space-y-4"><div id="list-container"></div></div>
+
+        <div id="view-input" class="hidden flex-1 overflow-y-auto p-5 pb-28 hide-scrollbar bg-white">
+            <div class="max-w-lg mx-auto">
+                <h2 class="text-2xl font-bold mb-6 text-slate-800">Buat Jurnal atau Notulen</h2>
+                <div class="space-y-6">
+                    <div><label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Kategori</label><div class="grid grid-cols-2 gap-4"><button onclick="setInputType('Jurnal')" id="btn-type-jurnal" class="p-4 rounded-2xl border-2 border-blue-600 bg-blue-50 text-blue-700 font-bold text-sm transition relative tap-effect text-left"><i class="fa-solid fa-briefcase text-lg mb-1 block"></i> Jurnal<div class="absolute top-3 right-3 w-3 h-3 bg-blue-600 rounded-full"></div></button><button onclick="setInputType('Catatan')" id="btn-type-catatan" class="p-4 rounded-2xl border border-slate-200 bg-white text-slate-500 font-semibold text-sm transition text-left"><i class="fa-regular fa-note-sticky text-lg mb-1 block"></i> Notulen</button></div></div>
+                    <div><label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Untuk Tanggal</label><input type="date" id="input-tanggal" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-bold text-slate-700"></div>
+                    <div><label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Isi Jurnal / Notulen</label><textarea id="input-isi" rows="6" class="w-full p-4 bg-slate-50 rounded-2xl border border-slate-200 text-base resize-none" placeholder="Tulis aktivitas..."></textarea></div>
+                    <button onclick="submitData()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-bold text-lg shadow-xl tap-effect flex justify-center items-center gap-3"><span>Simpan Data</span> <i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-profil" class="hidden flex-1 overflow-y-auto p-5 pb-28 hide-scrollbar bg-slate-50">
+            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 text-center mb-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-r from-blue-600 to-blue-400"></div>
+                <div class="relative z-10 mt-8">
+                    <div class="w-24 h-24 bg-white p-1.5 rounded-full mx-auto shadow-lg mb-3">
+                        <div id="profile-avatar" class="w-full h-full bg-slate-100 rounded-full flex items-center justify-center text-3xl font-bold text-slate-600 overflow-hidden">
+                            U
+                        </div>
+                    </div>
+                    <h2 id="profile-name" class="text-xl font-bold text-slate-800">User</h2>
+                    <p id="profile-divisi" class="text-sm text-slate-500 font-medium bg-slate-100 inline-block px-3 py-1 rounded-full mt-2">Divisi</p>
+                </div>
+            </div>
+            <h3 class="font-bold text-slate-800 mb-4 px-1">Statistik Saya</h3>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center"><div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-2 text-lg"><i class="fa-solid fa-briefcase"></i></div><span id="stat-jurnal" class="text-2xl font-bold text-slate-800">0</span><span class="text-xs text-slate-400 font-medium uppercase">Total Jurnal</span></div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center"><div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center mb-2 text-lg"><i class="fa-regular fa-note-sticky"></i></div><span id="stat-catatan" class="text-2xl font-bold text-slate-800">0</span><span class="text-xs text-slate-400 font-medium uppercase">Total Notulen</span></div>
+            </div>
+            <button onclick="logout()" class="w-full bg-white p-4 rounded-2xl border border-red-100 text-red-500 font-bold shadow-sm tap-effect flex items-center justify-center gap-2 hover:bg-red-50 transition"><i class="fa-solid fa-right-from-bracket"></i> Keluar Akun</button>
+        </div>
+
+        <nav class="fixed bottom-0 w-full bg-white/95 backdrop-blur-md border-t border-slate-200 flex justify-between items-end px-2 py-2 pb-safe z-40">
+            <button onclick="switchTab('jurnal')" class="flex flex-col items-center justify-center w-16 h-14 space-y-1 tap-effect"><div id="nav-icon-jurnal" class="text-xl mb-0.5 nav-active"><i class="fa-solid fa-briefcase"></i></div><span id="nav-text-jurnal" class="text-[10px] font-bold nav-active">Jurnal</span></button>
+            <button onclick="switchTab('catatan')" class="flex flex-col items-center justify-center w-16 h-14 space-y-1 tap-effect"><div id="nav-icon-catatan" class="text-xl mb-0.5 nav-inactive"><i class="fa-regular fa-note-sticky"></i></div><span id="nav-text-catatan" class="text-[10px] font-medium nav-inactive">Notulen</span></button>
+            <button onclick="switchTab('input')" class="flex flex-col items-center justify-center -mt-10 mx-1"><div class="w-16 h-16 bg-blue-600 rounded-full shadow-2xl shadow-blue-300 flex items-center justify-center tap-effect border-4 border-white"><i class="fa-solid fa-plus text-white text-2xl"></i></div></button>
+            <button onclick="switchTab('personal')" class="flex flex-col items-center justify-center w-16 h-14 space-y-1 tap-effect"><div id="nav-icon-personal" class="text-xl mb-0.5 nav-inactive"><i class="fa-solid fa-user-clock"></i></div><span id="nav-text-personal" class="text-[10px] font-medium nav-inactive">Saya</span></button>
+            <button onclick="switchTab('profil')" class="flex flex-col items-center justify-center w-16 h-14 space-y-1 tap-effect"><div id="nav-icon-profil" class="text-xl mb-0.5 nav-inactive"><i class="fa-regular fa-user"></i></div><span id="nav-text-profil" class="text-[10px] font-medium nav-inactive">Profil</span></button>
+        </nav>
+    </div>
+
+    <div id="loading" class="hidden fixed inset-0 z-[60] bg-white/80 backdrop-blur-sm flex flex-col justify-center items-center"><div class="animate-spin rounded-full h-10 w-10 border-[4px] border-slate-200 border-t-blue-600"></div></div>
+    <div id="modal-comment" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center">
+        <div class="bg-white w-full sm:w-96 rounded-t-3xl sm:rounded-3xl p-6 h-[85vh] flex flex-col shadow-2xl animate-[slideUp_0.3s_ease-out]">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <div><h3 class="font-bold text-xl">Diskusi</h3><p class="text-xs text-slate-400" id="comment-title">Memuat...</p></div>
+                <button onclick="closeModal()" class="w-8 h-8 bg-slate-100 rounded-full"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="comment-list" class="flex-1 overflow-y-auto space-y-3 pr-1 text-sm pb-4"></div>
+            <div class="mt-2 flex gap-2 pt-2 border-t">
+                <input type="text" id="input-comment" class="flex-1 bg-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none" placeholder="Tulis komentar...">
+                <button onclick="sendComment()" class="bg-blue-600 text-white w-12 h-11 rounded-xl flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- KONFIGURASI API (GANTI DENGAN URL DEPLOYMENT BARU) ---
+        const API_JURNAL_URL = "https://script.google.com/macros/s/AKfycbzUuKv1RGlt_-v9BrBo4O4HG_5ohtGgIySNJE3uvpqD2-O0lJvV-F8vt34ZgOG5KveLCA/exec"; 
+        const API_TARGET_URL = "https://script.google.com/macros/s/AKfycbzzWyRgZ2fk5NLCPyAViYHF6qyliNfi86ZsbqVHOsAIv3PcKFOK9-eq-4RrjVTkIw0I/exec";
+
+        let currentUser = { nama: '', divisi: '', foto: '' };
+        let activeTab = 'jurnal';
+        let inputType = 'Jurnal';
+        let globalData = [];
+        let activeJurnalId = null; 
+
+        function initApp() {
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            const todayStr = new Date().toLocaleDateString('id-ID', options);
+            const todayIso = new Date().toISOString().split('T')[0];
+            const homeDate = document.getElementById('home-date');
+            const inputDate = document.getElementById('input-tanggal');
+            if(homeDate) homeDate.innerText = todayStr;
+            if(inputDate) inputDate.value = todayIso;
+            
+            const session = localStorage.getItem('user_session');
+            const loginScreen = document.getElementById('login-screen');
+            if(session) { 
+                try {
+                    currentUser = JSON.parse(session); 
+                    if(loginScreen) { loginScreen.classList.add('hidden'); loginScreen.style.display = 'none'; }
+                    showHome(); 
+                } catch (e) {
+                    localStorage.removeItem('user_session');
+                    loginScreen.classList.remove('hidden'); loginScreen.style.display = 'flex';
+                }
+            } else { 
+                if(loginScreen) { loginScreen.classList.remove('hidden'); loginScreen.style.display = 'flex'; }
+            }
+        }
+
+        async function handleLogin() {
+            const nama = document.getElementById('login-name').value;
+            const pass = document.getElementById('login-pass').value;
+            const btn = document.getElementById('btn-login');
+
+            if(!nama || !pass) return alert("Username dan Password wajib diisi!");
+            
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(API_JURNAL_URL, {
+                    method: 'POST',
+                    redirect: "follow",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ 
+                        action: 'check_login', 
+                        payload: { nama: nama, password: pass } 
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success' && result.data.valid) {
+                    currentUser = { 
+                        nama: result.data.nama, 
+                        divisi: result.data.divisi,
+                        foto: result.data.foto 
+                    };
+                    localStorage.setItem('user_session', JSON.stringify(currentUser));
+                    
+                    const loginScreen = document.getElementById('login-screen');
+                    loginScreen.classList.add('opacity-0');
+                    setTimeout(() => { 
+                        loginScreen.classList.add('hidden'); 
+                        loginScreen.style.display = 'none'; 
+                        showHome(); 
+                    }, 500);
+                } else {
+                    alert("Username atau Password Salah!");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Gagal terhubung ke server. Cek internet.");
+            } finally {
+                btn.innerHTML = '<span>Masuk Dashboard</span>';
+                btn.disabled = false;
+            }
+        }
+
+        function logout() {
+            if(confirm('Keluar dari aplikasi?')) { 
+                localStorage.removeItem('user_session');
+                const loginScreen = document.getElementById('login-screen');
+                loginScreen.style.display = 'flex'; loginScreen.classList.remove('hidden'); loginScreen.classList.remove('opacity-0');
+                document.getElementById('view-home').classList.add('hidden');
+                document.getElementById('app-jurnal').classList.add('hidden');
+                document.getElementById('login-name').value = '';
+                document.getElementById('login-pass').value = '';
+            }
+        }
+
+        function showHome() {
+            const loginScreen = document.getElementById('login-screen');
+            if(!loginScreen.classList.contains('hidden')) { loginScreen.classList.add('hidden'); loginScreen.style.display = 'none'; }
+            document.getElementById('app-jurnal').classList.add('hidden');
+            document.getElementById('view-target').classList.add('hidden');
+            document.getElementById('view-home').classList.remove('hidden');
+            const greeting = document.getElementById('home-greeting');
+            if(greeting) greeting.innerText = currentUser.nama;
+
+            // UPDATE AVATAR DI HOME
+            const homeAvatar = document.getElementById('home-avatar');
+            if (currentUser.foto && currentUser.foto.trim() !== "") {
+                homeAvatar.innerHTML = `<img src="${currentUser.foto}" class="avatar-img">`;
+            } else {
+                homeAvatar.innerHTML = `<i class="fa-regular fa-user"></i>`;
+            }
+        }
+
+        function goBackToHome() {
+            document.getElementById('view-target').classList.add('hidden');
+            document.getElementById('app-jurnal').classList.add('hidden');
+            document.getElementById('view-home').classList.remove('hidden');
+        }
+
+        function goToTarget() { document.getElementById('view-home').classList.add('hidden'); document.getElementById('view-target').classList.remove('hidden'); initTargetModule(); }
+        function goToJurnal() { document.getElementById('view-home').classList.add('hidden'); document.getElementById('app-jurnal').classList.remove('hidden'); switchTab('jurnal'); if(globalData.length === 0) fetchJurnalData(); }
+
+        function initTargetModule() {
+            const now = new Date();
+            const targetDateEl = document.getElementById('target-date');
+            if(targetDateEl) targetDateEl.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const remaining = lastDay - now.getDate();
+            const badge = document.getElementById('closingCountdown');
+            if(badge) { badge.innerText = remaining > 0 ? `Tinggal ${remaining} hari lagi closing` : "HARI INI CLOSING!"; if (remaining === 0) badge.style.backgroundColor = 'rgba(239, 68, 68, 0.4)'; }
+            fetch(API_TARGET_URL).then(r => r.json()).then(d => {
+                if(d.status === 'success') {
+                    const list = document.getElementById('target-list');
+                    list.innerHTML = '';
+                    d.items.forEach(i => {
+                        let html = i.val <= 0 
+                            ? `<div class="target-item"><span class="text-sm text-slate-700 w-full"><b>${i.label}</b> <span class="target-reached-badge"><i class="fa-solid fa-check mr-1"></i> Tercapai</span></span></div>`
+                            : `<div class="target-item"><span class="text-sm text-slate-700 w-full"><b>${i.label}</b> kurang <span class="highlight-number">${i.val}</span> pcs</span></div>`;
+                        list.innerHTML += html;
+                    });
+                    document.getElementById('loading-target').style.display = 'none';
+                    list.style.display = 'block';
+                }
+            }).catch(() => { document.getElementById('loading-target').style.display = 'none'; document.getElementById('error-target').classList.remove('hidden'); });
+        }
+
+        async function fetchJurnalData() {
+            const container = document.getElementById('list-container');
+            container.innerHTML = '<div class="text-center py-10 text-slate-300 animate-pulse"><i class="fa-solid fa-circle-notch fa-spin text-2xl"></i><br>Sinkronisasi Database...</div>';
+            try {
+                const response = await fetch(API_JURNAL_URL, { method: 'POST', redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: 'read_data' }) });
+                const result = await response.json();
+                if(result.status === 'success') { globalData = result.data; renderJurnalList(); } else { container.innerHTML = '<div class="text-center text-red-400">Gagal mengambil data.</div>'; }
+            } catch (e) { container.innerHTML = '<div class="text-center text-red-400">Koneksi Backend Gagal.</div>'; }
+        }
+
+        async function submitData() {
+            const isi = document.getElementById('input-isi').value;
+            const tgl = document.getElementById('input-tanggal').value;
+            if(!isi || !tgl) return alert("Lengkapi data!");
+            document.getElementById('loading').classList.remove('hidden');
+            const payload = { id: 'J-' + Date.now(), timestamp: tgl, nama: currentUser.nama, divisi: currentUser.divisi, tipe: inputType, isi: isi };
+            try {
+                await fetch(API_JURNAL_URL, { method: 'POST', redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: 'save_data', payload: payload }) });
+                globalData.unshift({ ...payload, status: 'Proses', totalComments: 0, foto: currentUser.foto }); 
+                document.getElementById('input-isi').value = '';
+                document.getElementById('loading').classList.add('hidden');
+                switchTab(inputType === 'Jurnal' ? 'jurnal' : 'catatan');
+            } catch (e) { alert("Gagal menyimpan data!"); document.getElementById('loading').classList.add('hidden'); }
+        }
+
+        async function deleteData(id) {
+            if(!confirm("Apa kamu yakin ingin menghapus ini? Data yang dihapus tidak bisa dikembalikan.")) return;
+            document.getElementById('loading').classList.remove('hidden');
+            const index = globalData.findIndex(x => String(x.id) === String(id));
+            if(index !== -1) globalData.splice(index, 1);
+            renderJurnalList();
+            try {
+                await fetch(API_JURNAL_URL, { method: 'POST', redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: 'delete_data', id: id }) });
+                document.getElementById('loading').classList.add('hidden');
+            } catch (e) { alert("Gagal menghapus di server."); document.getElementById('loading').classList.add('hidden'); }
+        }
+
+        async function toggleStatus(id) {
+            const index = globalData.findIndex(x => String(x.id) === String(id));
+            if(index !== -1) {
+                const oldStatus = globalData[index].status;
+                globalData[index].status = (oldStatus === 'Selesai') ? 'Proses' : 'Selesai';
+                renderJurnalList(); 
+                try { await fetch(API_JURNAL_URL, { method: 'POST', redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: 'update_status', id: id }) }); } 
+                catch(e) { globalData[index].status = oldStatus; renderJurnalList(); }
+            }
+        }
+
+        async function openComments(id) {
+            activeJurnalId = id;
+            document.getElementById('modal-comment').classList.remove('hidden');
+            const list = document.getElementById('comment-list');
+            list.innerHTML = '<div class="text-center py-10 text-slate-300 animate-pulse"><i class="fa-solid fa-circle-notch fa-spin"></i><br>Memuat komentar...</div>';
+            const item = globalData.find(x => String(x.id) === String(id));
+            if(item) document.getElementById('comment-title').innerText = `Jurnal milik ${item.nama}`;
+            try {
+                const response = await fetch(API_JURNAL_URL, { method: 'POST', redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: 'get_comments', parentId: id }) });
+                const result = await response.json();
+                if(result.status === 'success') renderCommentList(result.data);
+            } catch (e) { list.innerHTML = '<div class="text-center text-red-400">Gagal memuat.</div>'; }
+        }
+
+        function renderCommentList(comments) {
+            const list = document.getElementById('comment-list');
+            list.innerHTML = '';
+            if(comments.length === 0) { list.innerHTML = '<div class="text-center text-slate-400 mt-10">Belum ada komentar.</div>'; return; }
+            comments.forEach(c => {
+                const isMe = c.pengomentar === currentUser.nama;
+                const align = isMe ? 'justify-end' : 'justify-start';
+                const bg = isMe ? 'bg-blue-100 text-blue-900 rounded-tr-none' : 'bg-slate-100 text-slate-800 rounded-tl-none';
+                const time = new Date(c.timestamp).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                list.innerHTML += `<div class="flex ${align}"><div class="max-w-[85%]"><p class="text-[10px] text-slate-400 mb-1 ${isMe ? 'text-right' : ''}">${c.pengomentar} • ${time}</p><div class="${bg} px-4 py-2 rounded-2xl text-sm leading-relaxed shadow-sm">${c.isi}</div></div></div>`;
+            });
+            list.scrollTop = list.scrollHeight;
+        }
+
+        async function sendComment() {
+            const input = document.getElementById('input-comment');
+            const isi = input.value;
+            if(!isi) return;
+            const list = document.getElementById('comment-list');
+            if(list.querySelector('.text-center')) list.innerHTML = ''; 
+            list.insertAdjacentHTML('beforeend', `<div class="flex justify-end opacity-50"><div class="max-w-[85%]"><div class="bg-blue-100 px-4 py-2 rounded-2xl text-sm rounded-tr-none">${isi} <i class="fa-solid fa-spinner fa-spin ml-2 text-xs"></i></div></div></div>`);
+            list.scrollTop = list.scrollHeight;
+            input.value = '';
+            try {
+                await fetch(API_JURNAL_URL, { method: 'POST', redirect: "follow", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: 'save_comment', payload: { id: 'C-'+Date.now(), parentId: activeJurnalId, pengomentar: currentUser.nama, isi: isi } }) });
+                openComments(activeJurnalId);
+            } catch (e) { alert("Gagal kirim komentar"); }
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            ['view-list','view-input','view-profil','filter-panel'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
+            resetNavStyles();
+            if (tab === 'input') { document.getElementById('view-input').classList.remove('hidden'); document.getElementById('header-title').innerText = "Input Data"; } 
+            else if (tab === 'profil') { document.getElementById('view-profil').classList.remove('hidden'); document.getElementById('header-title').innerText = "Profil Saya"; setActiveNav('profil'); renderProfile(); } 
+            else { document.getElementById('view-list').classList.remove('hidden'); setActiveNav(tab); const titles = { 'jurnal': 'Semua Jurnal', 'catatan': 'Notulen Tim', 'personal': 'Aktivitas Saya' }; document.getElementById('header-title').innerText = titles[tab]; renderJurnalList(); }
+        }
+
+        function renderJurnalList() {
+            const container = document.getElementById('list-container');
+            container.innerHTML = '';
+            const fNama = document.getElementById('filter-nama').value.toLowerCase();
+            const fDivisi = document.getElementById('filter-divisi').value;
+            const fTanggal = document.getElementById('filter-tanggal').value;
+            let filtered = [];
+            if(activeTab === 'personal') filtered = globalData.filter(i => i.nama === currentUser.nama);
+            else if(activeTab === 'jurnal') filtered = globalData.filter(i => i.tipe === 'Jurnal');
+            else if(activeTab === 'catatan') filtered = globalData.filter(i => i.tipe === 'Catatan');
+            filtered = filtered.filter(item => {
+                const matchNama = item.nama.toLowerCase().includes(fNama);
+                const matchDivisi = fDivisi === "" || item.divisi === fDivisi;
+                let matchTanggal = true;
+                if(fTanggal && item.timestamp) { let d = new Date(item.timestamp); if(!isNaN(d)) matchTanggal = d.toISOString().split('T')[0] === fTanggal; }
+                return matchNama && matchDivisi && matchTanggal;
+            });
+
+            if(filtered.length === 0) return container.innerHTML = '<div class="text-center py-10 text-slate-400 text-sm">Tidak ada data.</div>';
+
+            filtered.forEach(item => {
+                const isDone = item.status === 'Selesai';
+                const statusBadge = isDone ? '<span class="bg-green-100 text-green-700 border-green-200 text-[10px] px-2 py-1 rounded-full border"><i class="fa-solid fa-check"></i> Selesai</span>' : '<span class="bg-slate-100 text-slate-600 border-slate-200 text-[10px] px-2 py-1 rounded-full border"><i class="fa-solid fa-clock"></i> Proses</span>';
+                const commentBadge = item.totalComments > 0 ? `<span class="bg-red-500 text-white text-[10px] font-bold px-1.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full ml-1.5 shadow-sm">${item.totalComments}</span>` : '';
+                const isOwner = item.nama === currentUser.nama;
+                const deleteBtn = isOwner ? `<button onclick="deleteData('${item.id}')" class="text-xs text-red-400 font-semibold hover:text-red-600 ml-3 flex items-center gap-1"><i class="fa-solid fa-trash"></i> Hapus</button>` : '';
+
+                // LOGIC AVATAR DI TIMELINE
+                const avatarHTML = item.foto && item.foto.trim() !== ""
+                    ? `<img src="${item.foto}" class="avatar-img">`
+                    : item.nama.charAt(0);
+
+                const avatarClass = item.foto && item.foto.trim() !== ""
+                    ? "w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600 text-sm overflow-hidden border border-slate-200"
+                    : "w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600 text-sm";
+
+                const card = `
+                <div class="card-anim bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-3">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-3">
+                            <div class="${avatarClass}">${avatarHTML}</div>
+                            <div><h4 class="font-bold text-slate-800 text-sm">${item.nama}</h4><p class="text-[10px] text-slate-400 uppercase">${item.divisi} • ${new Date(item.timestamp).toLocaleDateString('id-ID')}</p></div>
+                        </div>
+                        ${statusBadge}
+                    </div>
+                    <div class="pl-[48px]">
+                        <p class="text-slate-600 text-sm mb-3">${item.isi}</p>
+                        <div class="flex items-center pt-2 border-t border-slate-50 border-dashed">
+                             <button onclick="openComments('${item.id}')" class="text-xs text-slate-500 font-semibold hover:text-blue-600 flex items-center relative"><i class="fa-regular fa-comment-dots mr-1"></i> Diskusi ${commentBadge}</button>
+                             <div class="flex ml-auto">
+                                ${isOwner ? `<button onclick="toggleStatus('${item.id}')" class="text-xs text-slate-400 font-semibold hover:text-green-600 flex items-center gap-1"><i class="fa-solid fa-arrows-rotate"></i> Status</button>` : ''}
+                                ${deleteBtn}
+                             </div>
+                        </div>
+                    </div>
+                </div>`;
+                container.innerHTML += card;
+            });
+        }
+
+        function renderProfile() {
+            document.getElementById('profile-name').innerText = currentUser.nama;
+            document.getElementById('profile-divisi').innerText = currentUser.divisi;
+            
+            // UPDATE AVATAR DI PROFIL
+            const profileAvatar = document.getElementById('profile-avatar');
+            if (currentUser.foto && currentUser.foto.trim() !== "") {
+                profileAvatar.innerHTML = `<img src="${currentUser.foto}" class="avatar-img">`;
+            } else {
+                profileAvatar.innerText = currentUser.nama.charAt(0).toUpperCase();
+            }
+
+            const myData = globalData.filter(i => i.nama === currentUser.nama);
+            document.getElementById('stat-jurnal').innerText = myData.filter(i => i.tipe === 'Jurnal').length;
+            document.getElementById('stat-catatan').innerText = myData.filter(i => i.tipe === 'Catatan').length;
+        }
+
+        function setInputType(t) {
+            inputType = t;
+            const btnJ = document.getElementById('btn-type-jurnal'); const btnC = document.getElementById('btn-type-catatan');
+            if(t==='Jurnal') { btnJ.className = btnJ.className.replace('border-slate-200 bg-white text-slate-500', 'border-2 border-blue-600 bg-blue-50 text-blue-700'); btnC.className = "p-4 rounded-2xl border border-slate-200 bg-white text-slate-500 font-semibold text-sm transition text-left"; } 
+            else { btnJ.className = "p-4 rounded-2xl border border-slate-200 bg-white text-slate-500 font-semibold text-sm transition text-left"; btnC.className = "p-4 rounded-2xl border-2 border-orange-500 bg-orange-50 text-orange-700 font-bold text-sm transition relative tap-effect text-left"; }
+        }
+        function toggleFilter() { document.getElementById('filter-panel').classList.toggle('hidden'); }
+        function resetFilter() { document.getElementById('filter-nama').value=''; document.getElementById('filter-divisi').value=''; document.getElementById('filter-tanggal').value=''; renderJurnalList(); }
+        function closeModal() { document.getElementById('modal-comment').classList.add('hidden'); }
+        function resetNavStyles() { ['jurnal','catatan','personal','profil'].forEach(t => { const i = document.getElementById(`nav-icon-${t}`); const txt = document.getElementById(`nav-text-${t}`); if(i){i.className="text-xl mb-0.5 nav-inactive"; txt.className="text-[10px] font-medium nav-inactive";} }); }
+        function setActiveNav(t) { document.getElementById(`nav-icon-${t}`).className="text-xl mb-0.5 nav-active"; document.getElementById(`nav-text-${t}`).className="text-[10px] font-bold nav-active"; }
+        initApp();
+    </script>
+</body>
+</html>
