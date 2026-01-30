@@ -114,19 +114,39 @@
         </div>
     </div>
 
-    <div id="view-target" class="hidden absolute inset-0 z-40 bg-slate-100 overflow-y-auto">
-        <div class="fixed top-4 left-4 z-50"><button onclick="goBackToHome()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-700 tap-effect shadow-md border border-slate-200"><i class="fa-solid fa-arrow-left"></i></button></div>
+    <div id="view-target" class="hidden fixed inset-0 z-[60] bg-slate-100 overflow-y-auto pb-20">
+        
+        <div class="fixed top-4 left-4 z-50">
+            <button onclick="goBackToHome()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-700 tap-effect shadow-md border border-slate-200">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+        </div>
+
         <div class="p-5 pt-0 min-h-screen flex justify-center items-start">
             <div class="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden mt-6 animate-[fadeIn_0.5s]">
+                
                 <div class="target-header relative">
-                    <h1 class="text-sm font-bold uppercase tracking-widest opacity-90">Target Harian Yanoshi Omiyage</h1>
+                    <h1 class="text-sm font-bold uppercase tracking-widest opacity-90">Target Harian Yanoshi</h1>
                     <div class="text-2xl font-bold mt-2" id="target-date">-</div>
                     <div class="deadline-badge" id="closingCountdown">...</div>
                 </div>
+
                 <div class="p-6">
-                    <div id="loading-target" class="text-center py-8"><div class="spinner-target"></div><p class="text-slate-400 text-sm">Mengambil data...</p></div>
-                    <div id="error-target" class="hidden text-center py-8"><p class="text-red-500 text-sm">Gagal memuat data.</p></div>
-                    <div id="target-list" class="hidden space-y-2"></div>
+                    <div id="loading-target" class="text-center py-8">
+                        <div class="spinner-target"></div>
+                        <p class="text-slate-400 text-sm">Mengambil data...</p>
+                    </div>
+
+                    <div id="error-target" class="hidden text-center py-8">
+                        <p class="text-red-500 text-sm">Gagal memuat data.</p>
+                    </div>
+
+                    <div id="target-list" class="hidden space-y-2">
+                        </div>
+                </div>
+                
+                <div class="bg-slate-50 p-4 text-center">
+                    <p class="text-[10px] text-slate-400">Semangat kejar targetnya! 🚀</p>
                 </div>
             </div>
         </div>
@@ -367,7 +387,7 @@
                 console.error(e);
                 alert("Gagal terhubung ke server. Cek internet.");
             } finally {
-                btn.innerHTML = '<span>Masuk Dashboard</span>';
+                btn.innerHTML = '<span>Coba Lagi</span>';
                 btn.disabled = false;
             }
         }
