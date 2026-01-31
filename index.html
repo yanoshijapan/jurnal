@@ -561,10 +561,12 @@
             const fNama = document.getElementById('filter-nama').value.toLowerCase();
             const fDivisi = document.getElementById('filter-divisi').value;
             const fTanggal = document.getElementById('filter-tanggal').value;
+            
             let filtered = [];
             if(activeTab === 'personal') filtered = globalData.filter(i => i.nama === currentUser.nama);
             else if(activeTab === 'jurnal') filtered = globalData.filter(i => i.tipe === 'Jurnal');
             else if(activeTab === 'catatan') filtered = globalData.filter(i => i.tipe === 'Catatan');
+            
             filtered = filtered.filter(item => {
                 const matchNama = item.nama.toLowerCase().includes(fNama);
                 const matchDivisi = fDivisi === "" || item.divisi === fDivisi;
@@ -582,7 +584,7 @@
                 const isOwner = item.nama === currentUser.nama;
                 const deleteBtn = isOwner ? `<button onclick="deleteData('${item.id}')" class="text-xs text-red-400 font-semibold hover:text-red-600 ml-3 flex items-center gap-1"><i class="fa-solid fa-trash"></i> Hapus</button>` : '';
 
-                // LOGIC AVATAR DI TIMELINE
+                // LOGIC AVATAR
                 const avatarHTML = item.foto && item.foto.trim() !== ""
                     ? `<img src="${item.foto}" class="avatar-img">`
                     : item.nama.charAt(0);
@@ -601,7 +603,8 @@
                         ${statusBadge}
                     </div>
                     <div class="pl-[48px]">
-                        <p class="text-slate-600 text-sm mb-3">${item.isi}</p>
+                        <p class="text-slate-600 text-sm mb-3 whitespace-pre-wrap leading-relaxed">${item.isi}</p>
+                        
                         <div class="flex items-center pt-2 border-t border-slate-50 border-dashed">
                              <button onclick="openComments('${item.id}')" class="text-xs text-slate-500 font-semibold hover:text-blue-600 flex items-center relative"><i class="fa-regular fa-comment-dots mr-1"></i> Diskusi ${commentBadge}</button>
                              <div class="flex ml-auto">
@@ -614,7 +617,7 @@
                 container.innerHTML += card;
             });
         }
-
+		
         function renderProfile() {
             document.getElementById('profile-name').innerText = currentUser.nama;
             document.getElementById('profile-divisi').innerText = currentUser.divisi;
