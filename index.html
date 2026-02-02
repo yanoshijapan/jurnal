@@ -89,8 +89,18 @@
                     <i class="fa-solid fa-bullseye"></i>
                 </div>
                 <div class="flex-1">
-                    <h3 class="font-bold text-lg text-slate-800">Lihat Target Harian</h3>
+                    <h3 class="font-bold text-lg text-slate-800">Lihat Target Omiyage</h3>
                     <p class="text-slate-500 text-xs">Cek sisa target & closing.</p>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-300"></i>
+            </div>
+						
+						<div onclick="goToJastip()" class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 tap-effect flex items-center gap-4 cursor-pointer group">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl group-hover:scale-110 transition">
+                    <i class="fa-solid fa-plane-departure"></i> </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-lg text-slate-800">Lihat Target Jastip</h3>
+                    <p class="text-slate-500 text-xs">Cek kuota KG jastip.</p>
                 </div>
                 <i class="fa-solid fa-chevron-right text-slate-300"></i>
             </div>
@@ -157,6 +167,24 @@
                     Keluar Akun
                 </button>
             </div>
+        </div>
+    </div>
+		
+		<div id="view-jastip" class="hidden fixed inset-0 z-[60] bg-white">
+        
+        <div class="absolute top-4 left-4 z-50">
+            <button onclick="goBackToHome()" class="w-10 h-10 bg-white/90 backdrop-blur rounded-full flex items-center justify-center text-slate-700 tap-effect shadow-md border border-slate-200">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+        </div>
+
+        <div class="w-full h-full pt-0 bg-slate-50">
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 -z-10">
+                <div class="spinner-target mb-2"></div>
+                <p class="text-xs">Memuat Data Jastip...</p>
+            </div>
+            
+            <iframe src="https://yanoshijapan.github.io/targetjastip/" class="w-full h-full border-0" title="Target Jastip"></iframe>
         </div>
     </div>
 
@@ -467,11 +495,23 @@
                 homeAvatar.innerHTML = `<i class="fa-regular fa-user"></i>`;
             }
         }
+				
+				function goToJastip() {
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-jastip').classList.remove('hidden');
+        }
 
         function goBackToHome() {
+            // Sembunyikan semua view
             document.getElementById('view-target').classList.add('hidden');
             document.getElementById('app-jurnal').classList.add('hidden');
+            document.getElementById('view-jastip').classList.add('hidden'); // <-- Tambahan Baru
+            
+            // Tampilkan Home
             document.getElementById('view-home').classList.remove('hidden');
+            
+            // Refresh Kurs (Opsional, biar data selalu fresh saat balik ke home)
+            fetchKurs(); 
         }
 
         function goToTarget() { document.getElementById('view-home').classList.add('hidden'); document.getElementById('view-target').classList.remove('hidden'); initTargetModule(); }
